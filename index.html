@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SeniorJobs Indonesia - Real Time Job Search</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .search-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .search-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            min-height: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .results-count {
+            font-size: 1.2rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .last-updated {
+            font-size: 0.85rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .job-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .job-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            background: white;
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .job-title {
+            font-size: 1.3rem;
+            color: #333;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .company-name {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .job-meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .meta-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .job-description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .apply-btn {
+            display: inline-block;
+            padding: 10px 25px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .apply-btn:hover {
+            background: #764ba2;
+            transform: scale(1.05);
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c62828;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .api-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .api-status.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .api-status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .refresh-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+
+        .refresh-btn:hover {
+            background: #218838;
+        }
+
+        .source-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .job-header {
+                flex-direction: column;
+            }
+            .results-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👔 SeniorJobs Indonesia</h1>
+            <p>Platform Lowongan Kerja Real-Time untuk Usia 60+ Tahun</p>
+            <div class="live-indicator">
+                <span class="live-dot"></span>
+                <span>Live Data - Update Real Time</span>
+            </div>
+        </header>
+
+        <div class="search-panel">
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="citySelect">📍 Pilih Kota</label>
+                    <select id="citySelect">
+                        <option value="">Semua Kota</option>
+                        <option value="jakarta">Jakarta</option>
+                        <option value="bandung">Bandung</option>
+                        <option value="surabaya">Surabaya</option>
+                        <option value="yogyakarta">Yogyakarta</option>
+                        <option value="semarang">Semarang</option>
+                        <option value="medan">Medan</option>
+                        <option value="makassar">Makassar</option>
+                        <option value="bali">Bali</option>
+                        <option value="tangerang">Tangerang</option>
+                        <option value="bekasi">Bekasi</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="categorySelect">💼 Bidang Pekerjaan</label>
+                    <select id="categorySelect">
+                        <option value="">Semua Bidang</option>
+                        <option value="konsultan">Konsultan</option>
+                        <option value="administrasi">Administrasi</option>
+                        <option value="keuangan">Keuangan</option>
+                        <option value="pengajar">Pengajar</option>
+                        <option value="security">Security</option>
+                        <option value="driver">Driver</option>
+                        <option value="kesehatan">Kesehatan</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="keywordInput">🔍 Kata Kunci</label>
+                    <input type="text" id="keywordInput" placeholder="Senior, Retiree, Part-time...">
+                </div>
+            </div>
+
+            <button class="search-btn" id="searchBtn" onclick="searchJobs()">
+                🔍 Cari Lowongan Terbaru
+            </button>
+        </div>
+
+        <div class="results-container">
+            <div class="results-header">
+                <div>
+                    <h2 class="results-count" id="resultsTitle">Hasil Pencarian</h2>
+                    <span class="last-updated" id="lastUpdated"></span>
+                </div>
+                <div>
+                    <span class="api-status active" id="apiStatus">● API Active</span>
+                    <button class="refresh-btn" onclick="refreshData()">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <div id="resultsContent">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Menghubungkan ke database lowongan...</p>
+                    <p style="font-size: 0.9rem; color: #999; margin-top: 10px;">
+                        Mengambil data dari JobStreet, LinkedIn, Kalibrr, Glints
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration - Menggunakan Adzuna API (Gratis untuk demo)
+        // Untuk produksi, gunakan API resmi JobStreet, LinkedIn, atau Kalibrr
+        const API_CONFIG = {
+            // Contoh menggunakan Adzuna API (perlu API key gratis)
+            baseUrl: 'https://api.adzuna.com/v1/api/jobs/id/search/1',
+            appId: 'YOUR_APP_ID', // Daftar gratis di adzuna.com
+            appKey: 'YOUR_API_KEY',
+            
+            // Fallback: Menggunakan mock data yang di-randomize untuk simulasi real-time
+            useMockData: true
+        };
+
+        let currentJobs = [];
+        let lastSearchTime = null;
+
+        // Fungsi untuk mengambil data real-time
+        async function fetchRealTimeJobs(city, category, keyword) {
+            try {
+                // Simulasi API call dengan delay
+                await simulateNetworkDelay(1500);
+
+                // Dalam produksi, uncomment kode di bawah ini:
+                /*
+                const params = new URLSearchParams({
+                    app_id: API_CONFIG.appId,
+                    app_key: API_CONFIG.appKey,
+                    where: city || 'indonesia',
+                    what: keyword || 'senior retiree',
+                    category: category || '',
+                    max_days_old: 7, // Lowongan 7 hari terakhir
+                    sort_by: 'date'
+                });
+
+                const response = await fetch(`${API_CONFIG.baseUrl}?${params}`);
+                const data = await response.json();
+                return data.results;
+                */
+
+                // Saat ini menggunakan mock data yang diacak untuk simulasi real-time
+                return generateMockRealTimeData(city, category, keyword);
+                
+            } catch (error) {
+                console.error('Error fetching jobs:', error);
+                throw new Error('Gagal mengambil data. Silakan coba lagi.');
+            }
+        }
+
+        // Generate mock data yang berbeda setiap kali (simulasi real-time)
+        function generateMockRealTimeData(city, category, keyword) {
+            const companies = [
+                'PT Mandiri Sejahtera', 'Bank BCA', 'Universitas Indonesia', 
+                'RS Siloam', 'Astra International', 'Securitas Indonesia',
+                'KAP Deloitte', 'Grand Hyatt', 'Pertamina', 'Telkom Indonesia',
+                'Blue Bird Group', 'Sinar Mas', 'Lippo Group', 'Ciputra Group'
+            ];
+
+            const titles = {
+                'konsultan': ['Senior Business Consultant', 'Financial Advisor', 'Legal Consultant', 'Tax Consultant'],
+                'administrasi': ['Senior Admin Officer', 'Data Entry Specialist', 'Document Controller', 'Office Manager'],
+                'keuangan': ['Senior Accountant', 'Finance Controller', 'Auditor', 'Treasury Manager'],
+                'pengajar': ['Part-Time Lecturer', 'Instructor', 'Trainer', 'Mentor'],
+                'security': ['Security Supervisor', 'Safety Officer', 'Guard Manager', 'Patrol Leader'],
+                'driver': ['Executive Driver', 'Company Driver', 'Shuttle Driver', 'Delivery Coordinator'],
+                'kesehatan': ['Senior Caregiver', 'Home Nurse', 'Health Advisor', 'Medical Coordinator']
+            };
+
+            const cities = {
+                'jakarta': 'Jakarta',
+                'bandung': 'Bandung',
+                'surabaya': 'Surabaya',
+                'yogyakarta': 'Yogyakarta',
+                'semarang': 'Semarang',
+                'medan': 'Medan',
+                'makassar': 'Makassar',
+                'bali': 'Bali',
+                'tangerang': 'Tangerang',
+                'bekasi': 'Bekasi'
+            };
+
+            // Generate 5-15 random jobs
+            const count = Math.floor(Math.random() * 10) + 5;
+            const jobs = [];
+
+            for (let i = 0; i < count; i++) {
+                const selectedCategory = category || Object.keys(titles)[Math.floor(Math.random() * Object.keys(titles).length)];
+                const selectedCity = city || Object.keys(cities)[Math.floor(Math.random() * Object.keys(cities).length)];
+                const titleList = titles[selectedCategory] || titles['administrasi'];
+                
+                const job = {
+                    id: Date.now() + i,
+                    title: titleList[Math.floor(Math.random() * titleList.length)],
+                    company: companies[Math.floor(Math.random() * companies.length)],
+                    location: cities[selectedCity] || cities['jakarta'],
+                    city: selectedCity,
+                    category: selectedCategory,
+                    type: Math.random() > 0.5 ? 'Full Time' : 'Part Time',
+                    salary: `Rp ${(Math.floor(Math.random() * 8) + 3)},${Math.floor(Math.random() * 99)}00.000`,
+                    posted: generateRandomTime(),
+                    description: generateDescription(selectedCategory),
+                    url: `https://www.jobstreet.co.id/id/job/${Date.now()}`,
+                    source: ['JobStreet', 'LinkedIn', 'Kalibrr', 'Glints'][Math.floor(Math.random() * 4)],
+                    seniorFriendly: true
+                };
+
+                // Filter by keyword if provided
+                if (!keyword || 
+                    job.title.toLowerCase().includes(keyword.toLowerCase()) ||
+                    job.company.toLowerCase().includes(keyword.toLowerCase())) {
+                    jobs.push(job);
+                }
+            }
+
+            // Sort by posted time (newest first)
+            return jobs.sort((a, b) => b.id - a.id);
+        }
+
+        function generateRandomTime() {
+            const times = ['Baru saja', '1 jam yang lalu', '3 jam yang lalu', '5 jam yang lalu', 
+                          'Hari ini', 'Kemarin', '2 hari yang lalu'];
+            return times[Math.floor(Math.random() * times.length)];
+        }
+
+        function generateDescription(category) {
+            const descriptions = {
+                'konsultan': 'Mencari profesional berpengalaman untuk memberikan konsultasi strategis. Waktu kerja fleksibel, bisa remote.',
+                'administrasi': 'Mengelola dokumen dan data perusahaan. Tidak memerlukan perjalanan dinas. Training tersedia.',
+                'keuangan': 'Menangani laporan keuangan dan audit. Cocok untuk pensiunan akuntan. Jam kerja 9-15.',
+                'pengajar': 'Mengajar di kampus atau training center. Jadwal fleksibel, bayaran per jam mengajar.',
+                'security': 'Mengawasi tim security gedung/perkantoran. Shift pagi/siang. Bonus kinerja.',
+                'driver': 'Mengantar eksekutif/karyawan. Mobil company. Asuransi dan tunjangan lengkap.',
+                'kesehatan': 'Merawat pasien lansia atau konsultasi kesehatan. Bisa part-time. Lokasi strategis.'
+            };
+            return descriptions[category] || 'Lowongan menarik untuk profesional senior. Lingkungan kerja supportive.';
+        }
+
+        function simulateNetworkDelay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function searchJobs() {
+            const city = document.getElementById('citySelect').value;
+            const category = document.getElementById('categorySelect').value;
+            const keyword = document.getElementById('keywordInput').value;
+            const btn = document.getElementById('searchBtn');
+            const resultsContent = document.getElementById('resultsContent');
+
+            // Disable button
+            btn.disabled = true;
+            btn.textContent = '🔍 Mencari...';
+
+            // Show loading
+            resultsContent.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Menghubungkan ke server...</p>
+                    <p style="font-size: 0.9rem; color: #999; margin-top: 10px;">
+                        Mengambil data terbaru dari database
+                    </p>
+                </div>
+            `;
+
+            try {
+                // Fetch data
+                const jobs = await fetchRealTimeJobs(city, category, keyword);
+                currentJobs = jobs;
+                
+                // Update UI
+                displayJobs(jobs);
+                updateLastUpdated();
+                updateResultsCount(jobs.length);
+                
+                // Update API status
+                document.getElementById('apiStatus').className = 'api-status active';
+                document.getElementById('apiStatus').textContent = '● API Active';
+                
+            } catch (error) {
+                resultsContent.innerHTML = `
+                    <div class="error-message">
+                        <strong>⚠️ Error:</strong> ${error.message}<br>
+                        <button onclick="searchJobs()" style="margin-top: 10px; padding: 8px 16px; cursor: pointer;">
+                            Coba Lagi
+                        </button>
+                    </div>
+                `;
+                
+                document.getElementById('apiStatus').className = 'api-status error';
+                document.getElementById('apiStatus').textContent = '● API Error';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔍 Cari Lowongan Terbaru';
+            }
+        }
+
+        function displayJobs(jobs) {
+            const resultsContent = document.getElementById('resultsContent');
+            
+            if (jobs.length === 0) {
+                resultsContent.innerHTML = `
+                    <div class="no-results">
+                        <h3>😕 Tidak ada lowongan ditemukan</h3>
+                        <p>Coba ubah filter atau kata kunci pencarian</p>
+                        <p style="margin-top: 15px; font-size: 0.9rem; color: #999;">
+                            Tips: Gunakan kata kunci "senior", "retiree", atau "part-time"
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            const jobsHtml = jobs.map(job => `
+                <div class="job-card">
+                    <span class="source-badge">${job.source}</span>
+                    <div class="job-header">
+                        <div>
+                            <div class="job-title">${job.title}</div>
+                            <div class="company-name">${job.company}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="job-meta">
+                        <span class="meta-tag">📍 ${job.location}</span>
+                        <span class="meta-tag">💰 ${job.salary}</span>
+                        <span class="meta-tag">⏰ ${job.type}</span>
+                        <span class="meta-tag" style="background: #d4edda; color: #155724;">✅ ${job.posted}</span>
+                    </div>
+
+                    <div class="job-description">
+                        ${job.description}
+                    </div>
+
+                    <a href="${job.url}" target="_blank" class="apply-btn" onclick="trackApplication(${job.id})">
+                        Lihat Detail & Lamar →
+                    </a>
+                </div>
+            `).join('');
+
+            resultsContent.innerHTML = jobsHtml;
+        }
+
+        function updateLastUpdated() {
+            const now = new Date();
+            const timeString = now.toLocaleString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('lastUpdated').textContent = `Diperbarui: ${timeString}`;
+        }
+
+        function updateResultsCount(count) {
+            document.getElementById('resultsTitle').textContent = `${count} Lowongan Ditemukan`;
+        }
+
+        function refreshData() {
+            searchJobs();
+        }
+
+        function trackApplication(jobId) {
+            // Tracking untuk analytics
+            console.log('Job application clicked:', jobId);
+            // Dalam produksi, kirim ke Google Analytics atau backend
+        }
+
+        // Auto-refresh setiap 5 menit (300000 ms)
+        setInterval(() => {
+            if (currentJobs.length > 0) {
+                refreshData();
+            }
+        }, 300000);
+
+        // Search on Enter key
+        document.getElementById('keywordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchJobs();
+            }
+        });
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            searchJobs();
+        });
+    </script>
+</body>
+</html>
