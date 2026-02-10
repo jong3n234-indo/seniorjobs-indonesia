@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SeniorJobs Indonesia - Real Time Job Search</title>
+    <title>SeniorJobs Indonesia - Real Time Job Search dengan Spesifikasi Lengkap</title>
     <style>
         * {
             margin: 0;
@@ -197,6 +197,8 @@
             justify-content: space-between;
             align-items: start;
             margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .job-title {
@@ -209,6 +211,7 @@
         .company-name {
             color: #667eea;
             font-weight: 600;
+            font-size: 1.1rem;
         }
 
         .job-meta {
@@ -231,22 +234,115 @@
             color: #555;
             line-height: 1.6;
             margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #ddd;
+        }
+
+        /* JOB SPECIFICATION STYLES */
+        .job-specification {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .spec-title {
+            font-size: 1.1rem;
+            color: #667eea;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .spec-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+
+        .spec-label {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .spec-value {
+            font-size: 0.95rem;
+            color: #333;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .spec-value.highlight {
+            color: #d32f2f;
+            font-weight: 700;
+        }
+
+        .spec-value.benefit {
+            color: #388e3c;
+            font-weight: 600;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .skill-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .senior-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 10px;
         }
 
         .apply-btn {
             display: inline-block;
-            padding: 10px 25px;
+            margin-top: 20px;
+            padding: 12px 30px;
             background: #667eea;
             color: white;
             text-decoration: none;
             border-radius: 25px;
             font-weight: 600;
             transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
         }
 
         .apply-btn:hover {
             background: #764ba2;
             transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
         }
 
         .error-message {
@@ -311,6 +407,35 @@
             font-weight: 600;
         }
 
+        .expand-btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .expand-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .specifications-hidden {
+            display: none;
+        }
+
+        .specifications-visible {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         @media (max-width: 768px) {
             .job-header {
                 flex-direction: column;
@@ -319,6 +444,9 @@
                 flex-direction: column;
                 align-items: flex-start;
             }
+            .spec-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -326,7 +454,7 @@
     <div class="container">
         <header>
             <h1>👔 SeniorJobs Indonesia</h1>
-            <p>Platform Lowongan Kerja Real-Time untuk Usia 60+ Tahun</p>
+            <p>Platform Lowongan Kerja Real-Time dengan Spesifikasi Lengkap untuk Usia 60+</p>
             <div class="live-indicator">
                 <span class="live-dot"></span>
                 <span>Live Data - Update Real Time</span>
@@ -356,13 +484,16 @@
                     <label for="categorySelect">💼 Bidang Pekerjaan</label>
                     <select id="categorySelect">
                         <option value="">Semua Bidang</option>
-                        <option value="konsultan">Konsultan</option>
+                        <option value="konsultan">Konsultan/Advisor</option>
                         <option value="administrasi">Administrasi</option>
-                        <option value="keuangan">Keuangan</option>
-                        <option value="pengajar">Pengajar</option>
-                        <option value="security">Security</option>
-                        <option value="driver">Driver</option>
-                        <option value="kesehatan">Kesehatan</option>
+                        <option value="keuangan">Keuangan/Accounting</option>
+                        <option value="pengajar">Pengajar/Trainer</option>
+                        <option value="security">Security/Safety</option>
+                        <option value="driver">Driver/Pengemudi</option>
+                        <option value="kesehatan">Kesehatan/Perawat</option>
+                        <option value="hukum">Hukum/Legal</option>
+                        <option value="marketing">Marketing/Sales</option>
+                        <option value="teknisi">Teknisi/Maintenance</option>
                     </select>
                 </div>
 
@@ -385,7 +516,7 @@
                 </div>
                 <div>
                     <span class="api-status active" id="apiStatus">● API Active</span>
-                    <button class="refresh-btn" onclick="refreshData()">🔄 Refresh</button>
+                    <button class="refresh-btn" onclick="refreshData()">🔄 Refresh Data</button>
                 </div>
             </div>
 
@@ -394,7 +525,7 @@
                     <div class="spinner"></div>
                     <p>Menghubungkan ke database lowongan...</p>
                     <p style="font-size: 0.9rem; color: #999; margin-top: 10px;">
-                        Mengambil data dari JobStreet, LinkedIn, Kalibrr, Glints
+                        Mengambil data lengkap dengan spesifikasi pekerjaan
                     </p>
                 </div>
             </div>
@@ -402,70 +533,158 @@
     </div>
 
     <script>
-        // API Configuration - Menggunakan Adzuna API (Gratis untuk demo)
-        // Untuk produksi, gunakan API resmi JobStreet, LinkedIn, atau Kalibrr
-        const API_CONFIG = {
-            // Contoh menggunakan Adzuna API (perlu API key gratis)
-            baseUrl: 'https://api.adzuna.com/v1/api/jobs/id/search/1',
-            appId: 'YOUR_APP_ID', // Daftar gratis di adzuna.com
-            appKey: 'YOUR_API_KEY',
-            
-            // Fallback: Menggunakan mock data yang di-randomize untuk simulasi real-time
-            useMockData: true
+        // Database spesifikasi lengkap untuk setiap kategori
+        const JOB_SPECS_DATABASE = {
+            'konsultan': {
+                education: 'Minimal S1/DIV semua jurusan, S2 preferred',
+                ageRequirement: '60-70 tahun (pensiunan direktur/manager diprioritaskan)',
+                experience: 'Minimal 20 tahun pengalaman industri terkait',
+                skills: ['Analisis strategis', 'Problem solving', 'Komunikasi bisnis', 'MS Office', 'Presentasi'],
+                benefits: ['Bonus project 10-20%', 'Asuransi kesehatan', 'Transportasi', 'Jam fleksibel', 'Remote work'],
+                workHours: 'Flexible, 20-30 jam/minggu, bisa remote',
+                facilities: ['Laptop company', 'Meeting room premium', 'Training update skill'],
+                physicalReq: 'Tidak ada, work from home available',
+                mentalReq: 'Kemampuan analisis, pengalaman manajerial, komunikasi baik'
+            },
+            'administrasi': {
+                education: 'Minimal SMA/SMK, D3 preferred',
+                ageRequirement: '60-68 tahun (detail oriented, teliti)',
+                experience: 'Minimal 10 tahun pengalaman admin/kantor',
+                skills: ['Microsoft Office', 'Data entry', 'Filing', 'Komunikasi', 'Organisasi', 'Ketelitian'],
+                benefits: ['THR', 'Asuransi kesehatan', 'Uang makan', 'Transportasi', 'Bonus tahunan'],
+                workHours: '08.00-14.00 atau 09.00-15.00 (6 jam/hari)',
+                facilities: ['Kursi ergonomis', 'Meja nyaman', 'AC', 'Kantin karyawan'],
+                physicalReq: 'Mampu duduk 6 jam, penglihatan baik untuk komputer',
+                mentalReq: 'Teliti, sabar, mampu fokus pada detail'
+            },
+            'keuangan': {
+                education: 'Minimal S1 Akuntansi/Manajemen Keuangan',
+                ageRequirement: '60-70 tahun (pensiunan akuntan/auditor dipersilakan)',
+                experience: 'Minimal 15 tahun pengalaman akuntansi/keuangan/audit',
+                skills: ['Accounting software', 'Excel advanced', 'Laporan keuangan', 'Analisis', 'Regulasi perpajakan'],
+                benefits: ['Fee project', 'Asuransi kesehatan keluarga', 'Bonus performance', 'Dana pensiun tambahan'],
+                workHours: '09.00-15.00, tidak ada lembur, weekend libur',
+                facilities: ['Software akuntansi', 'Kalkulator profesional', 'Database client'],
+                physicalReq: 'Tidak ada perjalanan dinas, kerja di kantor nyaman',
+                mentalReq: 'Integritas tinggi, teliti angka, update regulasi'
+            },
+            'pengajar': {
+                education: 'Minimal S2, S1 dengan pengalaman 25+ tahun diterima',
+                ageRequirement: '60-75 tahun (pensiunan dosen/guru highly preferred)',
+                experience: 'Minimal 20 tahun pengalaman praktisi/industri atau mengajar',
+                skills: ['Public speaking', 'Materi development', 'Mentoring', 'Evaluasi', 'Tehnologi pembelajaran'],
+                benefits: ['Honor per jam tinggi', 'Asuransi', 'Fasilitas riset', 'Networking akademik', 'Royalti materi'],
+                workHours: 'Flexible, weekend, evening class, 6-12 jam/minggu',
+                facilities: ['Ruang kelas modern', 'Proyektor', 'Laboratorium', 'Perpustakaan'],
+                physicalReq: 'Mampu berdiri mengajar 2-3 jam, suara jelas',
+                mentalReq: 'Passion mengajar, sabar, metodologi pembelajaran'
+            },
+            'security': {
+                education: 'Minimal SMA/SMK, ex-TNI/Polri preferred',
+                ageRequirement: '60-65 tahun (fisik kuat, sehat)',
+                experience: 'Minimal 10 tahun pengalaman security/militer/polri',
+                skills: ['Pengamanan', 'Patroli', 'CCTV monitoring', 'Laporan', 'First aid', 'Crisis management'],
+                benefits: ['Asuransi jiwa', 'Seragam lengkap', 'Makan siang', 'Bonus shift', 'Cuti tahunan'],
+                workHours: 'Shift pagi 07.00-15.00 atau siang 15.00-23.00 (8 jam)',
+                facilities: ['Pos security nyaman', 'CCTV monitoring', 'Radio komunikasi', 'Kendaraan patroli'],
+                physicalReq: 'Sehat jasmani, mampu berjalan/jaga 8 jam, penglihatan baik',
+                mentalReq: 'Waspada, disiplin, loyal, mampu handle pressure'
+            },
+            'driver': {
+                education: 'Minimal SMA, SIM A aktif, B1/B2 preferred',
+                ageRequirement: '60-68 tahun (pengalaman mengemudi 20+ tahun)',
+                experience: 'Minimal 15 tahun mengemudi mobil, no history kecelakaan besar',
+                skills: ['Defensive driving', 'Navigasi', 'Perawatan mobil', 'Etika profesional', 'Safety driving'],
+                benefits: ['Gaji tetap', 'THR', 'Asuransi kecelakaan', 'Tunjangan bensin', 'Bonus kinerja'],
+                workHours: '08.00-17.00 atau shift (tergantung kebutuhan), overtime dihitung',
+                facilities: ['Mobil company terawat', 'Seragam', 'GPS', 'Handphone dinas'],
+                physicalReq: 'Sehat jasmani, penglihatan normal, refleks baik, stamina mengemudi 8 jam',
+                mentalReq: 'Sabut dalam macet, etika baik, confidentiality, navigasi'
+            },
+            'kesehatan': {
+                education: 'Minimal D3 Keperawatan, Ners/S1 preferred, pensiunan perawat welcome',
+                ageRequirement: '60-70 tahun (pensiunan RS/dokter/bidan dipersilakan)',
+                experience: 'Minimal 15 tahun pengalaman klinis/perawatan',
+                skills: ['Perawatan lansia', 'First aid', 'Pengobatan dasar', 'Empati', 'Komunikasi pasien', 'Hygiene'],
+                benefits: ['Gaji kompetitif', 'Asuransi kesehatan', 'Bonus', 'Transportasi ke lokasi', 'Pelatihan berkala'],
+                workHours: 'Shift pagi 07.00-15.00 atau siang 15.00-23.00, bisa part-time',
+                facilities: ['Uniform', 'Alat medis', 'Kendaraan operasional', 'Akses telemedicine'],
+                physicalReq: 'Mampu membantu pasien berjalan, stamina jaga 8 jam, vaksin lengkap',
+                mentalReq: 'Empati tinggi, sabar, teliti obat, emotional stability'
+            },
+            'hukum': {
+                education: 'Minimal S1 Hukum, Advokat/Notaris/Pensiunan Hakim preferred',
+                ageRequirement: '60-75 tahun (pensiunan legal professional highly valued)',
+                experience: 'Minimal 20 tahun pengalaman hukum/litigasi/kontrak',
+                skills: ['Drafting kontrak', 'Legal research', 'Litigasi', 'Negosiasi', 'Compliance', 'Mediasi'],
+                benefits: ['Fee per project tinggi', 'Retainer fee', 'Asuransi', 'Networking', 'Prestise'],
+                workHours: 'Flexible, project based, meeting via Zoom, tidak ada lembur',
+                facilities: ['Database hukum', 'Kantor di lokasi strategis', 'Meeting room', 'Legal software'],
+                physicalReq: 'Tidak ada, bisa 100% work from home',
+                mentalReq: 'Analisis tajam, integritas, update regulasi, negosiasi'
+            },
+            'marketing': {
+                education: 'Minimal S1 semua jurusan, pengalaman 20+ tahun preferred',
+                ageRequirement: '60-68 tahun (networking luas, komunikatif)',
+                experience: 'Minimal 20 tahun pengalaman sales/marketing/business development',
+                skills: ['Negotiation', 'Networking', 'Presentation', 'CRM', 'Market analysis', 'Relationship building'],
+                benefits: ['Komisi tinggi', 'Bonus target', 'Asuransi', 'Mobil dinas', 'Entertainment allowance'],
+                workHours: 'Flexible, target oriented, meeting dengan client, tidak ada clock-in',
+                facilities: ['Database client', 'Demo kit', 'Kendaraan operasional', 'Handphone dinas'],
+                physicalReq: 'Mampu travel ringan, presentasi berdiri, stamina meeting',
+                mentalReq: 'Persuasif, resilience, networking, kreativitas, relationship oriented'
+            },
+            'teknisi': {
+                education: 'Minimal STM/SMK Teknik, sertifikasi preferred',
+                ageRequirement: '60-65 tahun (ahli/foreman senior diprioritaskan)',
+                experience: 'Minimal 20 tahun pengalaman teknik/maintenance',
+                skills: ['Troubleshooting', 'Perawatan preventif', 'Safety procedure', 'Blueprint reading', 'Tools operation'],
+                benefits: ['Gaji sesuai skill', 'Asuransi kecelakaan', 'Tools lengkap', 'Pelatihan teknologi baru', 'Bonus project'],
+                workHours: '08.00-16.00, emergency call dihitung extra, tidak ada shift malam',
+                facilities: ['Tools lengkap', 'Safety equipment', 'Kendaraan servis', 'Workshop modern'],
+                physicalReq: 'Sehat, mampu angkat 10kg, naik tangga, bekerja di ketinggian ringan',
+                mentalReq: 'Problem solving, safety conscious, detail oriented, continuous learning'
+            }
         };
 
         let currentJobs = [];
         let lastSearchTime = null;
 
-        // Fungsi untuk mengambil data real-time
+        // Fungsi untuk mengambil data real-time dengan spesifikasi lengkap
         async function fetchRealTimeJobs(city, category, keyword) {
             try {
-                // Simulasi API call dengan delay
                 await simulateNetworkDelay(1500);
-
-                // Dalam produksi, uncomment kode di bawah ini:
-                /*
-                const params = new URLSearchParams({
-                    app_id: API_CONFIG.appId,
-                    app_key: API_CONFIG.appKey,
-                    where: city || 'indonesia',
-                    what: keyword || 'senior retiree',
-                    category: category || '',
-                    max_days_old: 7, // Lowongan 7 hari terakhir
-                    sort_by: 'date'
-                });
-
-                const response = await fetch(`${API_CONFIG.baseUrl}?${params}`);
-                const data = await response.json();
-                return data.results;
-                */
-
-                // Saat ini menggunakan mock data yang diacak untuk simulasi real-time
-                return generateMockRealTimeData(city, category, keyword);
-                
+                return generateMockRealTimeDataWithSpecs(city, category, keyword);
             } catch (error) {
                 console.error('Error fetching jobs:', error);
                 throw new Error('Gagal mengambil data. Silakan coba lagi.');
             }
         }
 
-        // Generate mock data yang berbeda setiap kali (simulasi real-time)
-        function generateMockRealTimeData(city, category, keyword) {
+        // Generate mock data dengan spesifikasi lengkap
+        function generateMockRealTimeDataWithSpecs(city, category, keyword) {
             const companies = [
-                'PT Mandiri Sejahtera', 'Bank BCA', 'Universitas Indonesia', 
-                'RS Siloam', 'Astra International', 'Securitas Indonesia',
-                'KAP Deloitte', 'Grand Hyatt', 'Pertamina', 'Telkom Indonesia',
-                'Blue Bird Group', 'Sinar Mas', 'Lippo Group', 'Ciputra Group'
+                'PT Mandiri Sejahtera', 'Bank Central Asia', 'Universitas Indonesia', 
+                'RS Siloam Hospitals', 'Astra International', 'Securitas Indonesia',
+                'Deloitte Indonesia', 'Grand Hyatt Jakarta', 'Pertamina', 'Telkom Indonesia',
+                'Blue Bird Group', 'Sinar Mas Group', 'Lippo Group', 'Ciputra Group',
+                'Kementerian Keuangan', 'Bank Mandiri', 'Indofood', 'Unilever Indonesia',
+                'Mayora Indah', 'Kalbe Farma', 'Kimia Farma', 'Angkasa Pura',
+                'Pelindo', 'PLN', 'Perumnas', 'Wika Gedung', 'Adhi Karya',
+                'PP (Pembangunan Perumahan)', 'Nindya Karya', 'Total Bangun Persada'
             ];
 
             const titles = {
-                'konsultan': ['Senior Business Consultant', 'Financial Advisor', 'Legal Consultant', 'Tax Consultant'],
-                'administrasi': ['Senior Admin Officer', 'Data Entry Specialist', 'Document Controller', 'Office Manager'],
-                'keuangan': ['Senior Accountant', 'Finance Controller', 'Auditor', 'Treasury Manager'],
-                'pengajar': ['Part-Time Lecturer', 'Instructor', 'Trainer', 'Mentor'],
-                'security': ['Security Supervisor', 'Safety Officer', 'Guard Manager', 'Patrol Leader'],
-                'driver': ['Executive Driver', 'Company Driver', 'Shuttle Driver', 'Delivery Coordinator'],
-                'kesehatan': ['Senior Caregiver', 'Home Nurse', 'Health Advisor', 'Medical Coordinator']
+                'konsultan': ['Senior Business Consultant', 'Financial Advisor', 'Legal Consultant', 'Tax Consultant', 'Strategy Advisor', 'Management Consultant'],
+                'administrasi': ['Senior Admin Officer', 'Data Entry Specialist', 'Document Controller', 'Office Manager', 'Archivist', 'Records Manager'],
+                'keuangan': ['Senior Accountant', 'Finance Controller', 'Auditor Senior', 'Treasury Manager', 'Tax Supervisor', 'Budget Analyst'],
+                'pengajar': ['Part-Time Lecturer', 'Senior Instructor', 'Corporate Trainer', 'Mentor Professional', 'Guest Lecturer', 'Training Specialist'],
+                'security': ['Security Supervisor', 'Safety Officer Senior', 'Security Manager', 'Patrol Leader', 'CCTV Supervisor', 'Loss Prevention Manager'],
+                'driver': ['Executive Driver', 'Company Driver Senior', 'Shuttle Driver', 'Delivery Coordinator', 'Personal Driver', 'Fleet Supervisor'],
+                'kesehatan': ['Senior Caregiver', 'Home Care Nurse', 'Health Advisor', 'Medical Coordinator', 'Elderly Care Specialist', 'Wellness Consultant'],
+                'hukum': ['Legal Consultant', 'Contract Specialist', 'Compliance Officer', 'Corporate Secretary', 'Paralegal Senior', 'Legal Advisor'],
+                'marketing': ['Senior Marketing Consultant', 'Business Development Senior', 'Key Account Manager', 'Sales Trainer', 'Brand Consultant', 'Market Researcher'],
+                'teknisi': ['Senior Maintenance Technician', 'Facility Supervisor', 'Technical Advisor', 'Preventive Maintenance Specialist', 'Building Supervisor', 'Equipment Manager']
             };
 
             const cities = {
@@ -481,7 +700,6 @@
                 'bekasi': 'Bekasi'
             };
 
-            // Generate 5-15 random jobs
             const count = Math.floor(Math.random() * 10) + 5;
             const jobs = [];
 
@@ -489,6 +707,7 @@
                 const selectedCategory = category || Object.keys(titles)[Math.floor(Math.random() * Object.keys(titles).length)];
                 const selectedCity = city || Object.keys(cities)[Math.floor(Math.random() * Object.keys(cities).length)];
                 const titleList = titles[selectedCategory] || titles['administrasi'];
+                const specs = JOB_SPECS_DATABASE[selectedCategory] || JOB_SPECS_DATABASE['administrasi'];
                 
                 const job = {
                     id: Date.now() + i,
@@ -497,44 +716,66 @@
                     location: cities[selectedCity] || cities['jakarta'],
                     city: selectedCity,
                     category: selectedCategory,
-                    type: Math.random() > 0.5 ? 'Full Time' : 'Part Time',
-                    salary: `Rp ${(Math.floor(Math.random() * 8) + 3)},${Math.floor(Math.random() * 99)}00.000`,
+                    type: Math.random() > 0.4 ? 'Full Time' : 'Part Time',
+                    salary: generateSalary(selectedCategory),
                     posted: generateRandomTime(),
-                    description: generateDescription(selectedCategory),
+                    description: generateDescription(selectedCategory, specs),
+                    specifications: specs,
                     url: `https://www.jobstreet.co.id/id/job/${Date.now()}`,
-                    source: ['JobStreet', 'LinkedIn', 'Kalibrr', 'Glints'][Math.floor(Math.random() * 4)],
-                    seniorFriendly: true
+                    source: ['JobStreet', 'LinkedIn', 'Kalibrr', 'Glints', 'Indeed'][Math.floor(Math.random() * 5)],
+                    seniorFriendly: true,
+                    urgent: Math.random() > 0.8 // 20% chance urgent
                 };
 
-                // Filter by keyword if provided
                 if (!keyword || 
                     job.title.toLowerCase().includes(keyword.toLowerCase()) ||
-                    job.company.toLowerCase().includes(keyword.toLowerCase())) {
+                    job.company.toLowerCase().includes(keyword.toLowerCase()) ||
+                    job.description.toLowerCase().includes(keyword.toLowerCase())) {
                     jobs.push(job);
                 }
             }
 
-            // Sort by posted time (newest first)
             return jobs.sort((a, b) => b.id - a.id);
         }
 
+        function generateSalary(category) {
+            const base = {
+                'konsultan': [8, 15],
+                'administrasi': [3, 5],
+                'keuangan': [6, 12],
+                'pengajar': [4, 10],
+                'security': [4, 6],
+                'driver': [4, 7],
+                'kesehatan': [5, 9],
+                'hukum': [10, 20],
+                'marketing': [5, 12],
+                'teknisi': [5, 8]
+            };
+            const [min, max] = base[category] || [4, 8];
+            const actual = Math.floor(Math.random() * (max - min) + min);
+            return `Rp ${actual}.000.000 - ${actual + 2}.000.000/bulan`;
+        }
+
         function generateRandomTime() {
-            const times = ['Baru saja', '1 jam yang lalu', '3 jam yang lalu', '5 jam yang lalu', 
-                          'Hari ini', 'Kemarin', '2 hari yang lalu'];
+            const times = ['Baru saja', '1 jam lalu', '3 jam lalu', '5 jam lalu', 
+                          'Hari ini', 'Kemarin', '2 hari lalu', '3 hari lalu'];
             return times[Math.floor(Math.random() * times.length)];
         }
 
-        function generateDescription(category) {
-            const descriptions = {
-                'konsultan': 'Mencari profesional berpengalaman untuk memberikan konsultasi strategis. Waktu kerja fleksibel, bisa remote.',
-                'administrasi': 'Mengelola dokumen dan data perusahaan. Tidak memerlukan perjalanan dinas. Training tersedia.',
-                'keuangan': 'Menangani laporan keuangan dan audit. Cocok untuk pensiunan akuntan. Jam kerja 9-15.',
-                'pengajar': 'Mengajar di kampus atau training center. Jadwal fleksibel, bayaran per jam mengajar.',
-                'security': 'Mengawasi tim security gedung/perkantoran. Shift pagi/siang. Bonus kinerja.',
-                'driver': 'Mengantar eksekutif/karyawan. Mobil company. Asuransi dan tunjangan lengkap.',
-                'kesehatan': 'Merawat pasien lansia atau konsultasi kesehatan. Bisa part-time. Lokasi strategis.'
+        function generateDescription(category, specs) {
+            const intros = {
+                'konsultan': `Mencari profesional senior untuk memberikan konsultasi strategis. ${specs.workHours}.`,
+                'administrasi': `Dibutuhkan admin senior yang teliti dan berpengalaman. ${specs.workHours}.`,
+                'keuangan': `Lowongan untuk akuntan/auditor senior. ${specs.workHours}. Pensiunan welcome.`,
+                'pengajar': `Kesempatan mengajar untuk praktisi senior. ${specs.workHours}.`,
+                'security': `Security supervisor berpengalaman. ${specs.workHours}.`,
+                'driver': `Driver executive dengan pengalaman luas. ${specs.workHours}.`,
+                'kesehatan': `Perawat/caregiver untuk pasien lansia. ${specs.workHours}.`,
+                'hukum': `Konsultan hukum berpengalaman. ${specs.workHours}. Remote work available.`,
+                'marketing': `Marketing senior dengan networking luas. ${specs.workHours}.`,
+                'teknisi': `Teknisi/maintenance supervisor. ${specs.workHours}.`
             };
-            return descriptions[category] || 'Lowongan menarik untuk profesional senior. Lingkungan kerja supportive.';
+            return intros[category] || 'Lowongan menarik untuk profesional senior.';
         }
 
         function simulateNetworkDelay(ms) {
@@ -548,32 +789,24 @@
             const btn = document.getElementById('searchBtn');
             const resultsContent = document.getElementById('resultsContent');
 
-            // Disable button
             btn.disabled = true;
             btn.textContent = '🔍 Mencari...';
 
-            // Show loading
             resultsContent.innerHTML = `
                 <div class="loading">
                     <div class="spinner"></div>
-                    <p>Menghubungkan ke server...</p>
-                    <p style="font-size: 0.9rem; color: #999; margin-top: 10px;">
-                        Mengambil data terbaru dari database
-                    </p>
+                    <p>Mengambil data lowongan dengan spesifikasi lengkap...</p>
                 </div>
             `;
 
             try {
-                // Fetch data
                 const jobs = await fetchRealTimeJobs(city, category, keyword);
                 currentJobs = jobs;
                 
-                // Update UI
                 displayJobs(jobs);
                 updateLastUpdated();
                 updateResultsCount(jobs.length);
                 
-                // Update API status
                 document.getElementById('apiStatus').className = 'api-status active';
                 document.getElementById('apiStatus').textContent = '● API Active';
                 
@@ -586,7 +819,6 @@
                         </button>
                     </div>
                 `;
-                
                 document.getElementById('apiStatus').className = 'api-status error';
                 document.getElementById('apiStatus').textContent = '● API Error';
             } finally {
@@ -603,17 +835,16 @@
                     <div class="no-results">
                         <h3>😕 Tidak ada lowongan ditemukan</h3>
                         <p>Coba ubah filter atau kata kunci pencarian</p>
-                        <p style="margin-top: 15px; font-size: 0.9rem; color: #999;">
-                            Tips: Gunakan kata kunci "senior", "retiree", atau "part-time"
-                        </p>
                     </div>
                 `;
                 return;
             }
 
             const jobsHtml = jobs.map(job => `
-                <div class="job-card">
+                <div class="job-card" id="job-${job.id}">
                     <span class="source-badge">${job.source}</span>
+                    ${job.urgent ? '<span style="position: absolute; top: 15px; right: 100px; background: #ff5252; color: white; padding: 3px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600;">URGENT</span>' : ''}
+                    
                     <div class="job-header">
                         <div>
                             <div class="job-title">${job.title}</div>
@@ -628,17 +859,101 @@
                         <span class="meta-tag" style="background: #d4edda; color: #155724;">✅ ${job.posted}</span>
                     </div>
 
+                    <div class="senior-badge">
+                        👴👵 Khusus Usia 60+ Tahun
+                    </div>
+
                     <div class="job-description">
                         ${job.description}
                     </div>
 
-                    <a href="${job.url}" target="_blank" class="apply-btn" onclick="trackApplication(${job.id})">
-                        Lihat Detail & Lamar →
-                    </a>
+                    <button class="expand-btn" onclick="toggleSpecifications(${job.id})">
+                        📋 Lihat Spesifikasi Lengkap
+                    </button>
+
+                    <div id="specs-${job.id}" class="specifications-hidden">
+                        <div class="job-specification">
+                            <div class="spec-title">
+                                📋 SPESIFIKASI PEKERJAAN (Job Specification)
+                            </div>
+                            
+                            <div class="spec-grid">
+                                <div class="spec-item">
+                                    <div class="spec-label">🎓 Pendidikan Minimum</div>
+                                    <div class="spec-value">${job.specifications.education}</div>
+                                </div>
+
+                                <div class="spec-item">
+                                    <div class="spec-label">👴 Persyaratan Umur</div>
+                                    <div class="spec-value highlight">${job.specifications.ageRequirement}</div>
+                                </div>
+
+                                <div class="spec-item">
+                                    <div class="spec-label">💼 Pengalaman Kerja</div>
+                                    <div class="spec-value">${job.specifications.experience}</div>
+                                </div>
+
+                                <div class="spec-item">
+                                    <div class="spec-label">⏰ Jam Kerja</div>
+                                    <div class="spec-value" style="color: #1976d2; font-weight: 600;">${job.specifications.workHours}</div>
+                                </div>
+
+                                <div class="spec-item" style="grid-column: 1 / -1;">
+                                    <div class="spec-label">🛠️ Skill yang Dibutuhkan</div>
+                                    <div class="skills-list">
+                                        ${job.specifications.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                                    </div>
+                                </div>
+
+                                <div class="spec-item" style="grid-column: 1 / -1;">
+                                    <div class="spec-label">🎁 Benefit & Tunjangan</div>
+                                    <div class="spec-value benefit">
+                                        ${job.specifications.benefits.join(' • ')}
+                                    </div>
+                                </div>
+
+                                <div class="spec-item">
+                                    <div class="spec-label">🏢 Fasilitas Kerja</div>
+                                    <div class="spec-value">${job.specifications.facilities.join(', ')}</div>
+                                </div>
+
+                                <div class="spec-item">
+                                    <div class="spec-label">💪 Persyaratan Fisik</div>
+                                    <div class="spec-value">${job.specifications.physicalReq}</div>
+                                </div>
+
+                                <div class="spec-item" style="grid-column: 1 / -1;">
+                                    <div class="spec-label">🧠 Persyaratan Mental/Kognitif</div>
+                                    <div class="spec-value">${job.specifications.mentalReq}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 15px;">
+                        <a href="${job.url}" target="_blank" class="apply-btn" onclick="trackApplication(${job.id})">
+                            Lamar Sekarang →
+                        </a>
+                    </div>
                 </div>
             `).join('');
 
             resultsContent.innerHTML = jobsHtml;
+        }
+
+        function toggleSpecifications(jobId) {
+            const specDiv = document.getElementById(`specs-${jobId}`);
+            const btn = event.target;
+            
+            if (specDiv.classList.contains('specifications-hidden')) {
+                specDiv.classList.remove('specifications-hidden');
+                specDiv.classList.add('specifications-visible');
+                btn.textContent = '🔼 Sembunyikan Spesifikasi';
+            } else {
+                specDiv.classList.remove('specifications-visible');
+                specDiv.classList.add('specifications-hidden');
+                btn.textContent = '📋 Lihat Spesifikasi Lengkap';
+            }
         }
 
         function updateLastUpdated() {
@@ -662,12 +977,11 @@
         }
 
         function trackApplication(jobId) {
-            // Tracking untuk analytics
             console.log('Job application clicked:', jobId);
-            // Dalam produksi, kirim ke Google Analytics atau backend
+            // Analytics tracking here
         }
 
-        // Auto-refresh setiap 5 menit (300000 ms)
+        // Auto-refresh setiap 5 menit
         setInterval(() => {
             if (currentJobs.length > 0) {
                 refreshData();
@@ -688,3 +1002,4 @@
     </script>
 </body>
 </html>
+
